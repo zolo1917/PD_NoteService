@@ -1,0 +1,47 @@
+name: Build and deploy note service to gcloud repo
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{secrets.PROJECT_ID}}
+  REGION: ${{secrets.REGION}}
+  APP_NAME: note-service
+  DEPLOYMENT_NAME: docker-build
+  REGISTRY_NAME: ${{secrets.ARTIFACT_RESGISTRY_NAME}}
+  SERVICE_ACCOUNT_EMAIL: ${{secrets.SERVICE_ACCOUNT_EMAIL}}
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, build, publish and Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkou@v4
+
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1.1.1"
+        with:
+          credentials_json: ${{secrets.GCP_SA_KEY}}
+      - name: Build
+        run: |-
+          docker build \
+              --tag "$REGION-docker.pkg.dev/$PROJECT_ID/$REGISTRY_NAME/$APP_NAME:$GITHUB_SHA" \
+          .
+      - name: Authorize Docker
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev
+
+      # Push the Docker image to Google Artifact Registry
+      - name: Publish
+        run: |-
+          docker push "$REGION-docker.pkg.dev/$PROJECT_ID/$REGISTRY_NAME/$APP_NAME:$GITHUB_SHA"
+
+      # Push image to compute instance
+    #   - name: Push to compute instance
+    #     run: |-
+    #       gcloud compute instances update-container pd-noteservice --zone="us-central1-a" --container-image="$REGION-docker.pkg.dev/$PROJECT_ID/$REGISTRY_NAME/$APP_NAME:$GITHUB_SHA"
