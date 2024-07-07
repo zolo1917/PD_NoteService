@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Response } from "express";
 import * as dotenv from "dotenv";
-import { connectMongo } from "./config/dbconfig";
+import { connectMongo, initializieFirebaseApp } from "./config/dbconfig";
 import { notesRouter } from "./api/notes";
 import cors from "cors";
 import { secretKey } from "./config/config";
@@ -29,9 +29,13 @@ app.use((req: any, resp: Response, next: NextFunction) => {
   }
 });
 dotenv.config();
-connectMongo();
-app.use(notesRouter);
+let serviceAccount = "";
+if (process.env.ACCOUNT_DETAILS) {
+  serviceAccount = JSON.parse(process.env.ACCOUNT_DETAILS.toString());
+}
+initializieFirebaseApp(serviceAccount);
 const port = process.env.PORT || 3000; // 4301
+app.use(notesRouter);
 app.listen(port, () => {
   console.log(`Application is running on Port: ${port}`);
 });
