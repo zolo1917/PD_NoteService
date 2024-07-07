@@ -10,7 +10,7 @@ env:
   REGION: ${{secrets.REGION}}
   APP_NAME: note-service
   DEPLOYMENT_NAME: docker-build
-  REGISTRY_NAME: ${{secrets.ARTIFACT_RESGISTRY_NAME}}
+  REGISTRY_NAME: ${{secrets.ARTIFACT_REGISTRY_NAME}}
   SERVICE_ACCOUNT_EMAIL: ${{secrets.SERVICE_ACCOUNT_EMAIL}}
 
 jobs:
