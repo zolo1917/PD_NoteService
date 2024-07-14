@@ -17,7 +17,7 @@ router.get("/notes", async (req: Request, res: Response) => {
       res.status(200).send(data);
     });
   } catch (err) {
-    console.log(err);
+    logger.error("Error: {}", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
@@ -87,7 +87,12 @@ router.delete("/notes/:id", async (req: Request, res: Response) => {
     const noteId = req.params.id;
     logger.info("deleting user with id {}", noteId);
     const noteRef = getFirestoreInstance();
-    await noteRef.doc(noteId).delete();
+    await noteRef
+      .doc(noteId)
+      .delete()
+      .then(() => {
+        logger.info("deleted Successfully");
+      });
     res.status(200).json({ message: "deleted Successfully" });
   } catch (err) {
     logger.error("Error: {}", err);
