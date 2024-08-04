@@ -45,8 +45,8 @@ router.get("/notes/user/:id", async (req: Request, res: Response) => {});
 router.post("/notes", async (req: Request, res: Response) => {
   try {
     const note: INote = req.body;
-    const netRef = getFirestoreInstance();
-    netRef
+    const noteRef = getFirestoreInstance();
+    await noteRef
       .add({
         title: note.title,
         text: note.text,
