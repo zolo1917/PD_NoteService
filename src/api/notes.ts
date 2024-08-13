@@ -3,6 +3,10 @@ import { INote, Note } from "../Model/NoteModel";
 import { getFirestoreInstance } from "../config/dbconfig";
 import { getLogger } from "../config/config";
 const router = express.Router();
+router.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-cache");
+  next();
+});
 const logger = getLogger();
 router.get("/notes", async (req: Request, res: Response) => {
   try {
