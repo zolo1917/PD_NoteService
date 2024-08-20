@@ -18,6 +18,7 @@ router.get("/notes", async (req: Request, res: Response) => {
           ...doc.data(),
         };
       });
+      logger.info("Fetching Latest Data");
       res.status(200).send(data);
     });
   } catch (err) {
