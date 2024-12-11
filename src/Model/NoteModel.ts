@@ -11,6 +11,8 @@ export interface INote {
   };
   text: string;
   userId: string;
+  isFavourite: boolean;
+  isPinned: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +28,16 @@ const noteSchema = new mongoose.Schema<INote>({
   userId: {
     type: String,
     require: true,
+  },
+  isFavourite: {
+    type: Boolean,
+    default: false,
+    require: false,
+  },
+  isPinned: {
+    type: Boolean,
+    default: false,
+    require: false,
   },
   createdAt: {
     type: Date,

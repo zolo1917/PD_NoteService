@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { INote, Note } from "../Model/NoteModel";
+import { INote } from "../Model/NoteModel";
 import { getFirestoreInstance } from "../config/dbconfig";
 import { getLogger } from "../config/config";
 const router = express.Router();
@@ -27,6 +27,34 @@ router.get("/notes", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * This api will fetch all the notes that have been created by the new user
+ * this will also contain the data for the notes that have the pinned and the favorites marked
+ * hence the UI can use it to filter that data as well.
+ */
+router.get("/notes/user/:userid", async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userid;
+    const noteRef = getFirestoreInstance();
+    await noteRef
+      .where("userId", "==", userId)
+      .get()
+      .then((value: any) => {
+        const data = value.docs.map((doc: any) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        logger.info("Fetching Notes for the given User id : {}", userId);
+        res.status(200).json(data);
+      });
+  } catch (err) {
+    logger.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.get("/notes/:id", async (req: Request, res: Response) => {
   try {
     const noteId = req.params.id;
@@ -45,7 +73,9 @@ router.get("/notes/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/notes/user/:id", async (req: Request, res: Response) => {});
+/**
+ * Fetch notes for the current user.
+ */
 
 router.post("/notes", async (req: Request, res: Response) => {
   try {
